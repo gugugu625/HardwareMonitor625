@@ -1,0 +1,33 @@
+﻿<Window x:Class="HardwareMonitor625.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HardwareMonitor625"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Closing="Window_Closing" Closed="Window_Closed">
+    <Grid>
+        <hc:NotifyIcon x:Name="notifyicon" Text="HardwareMonitor625" Token="HardwareMonitor625" IsBlink="false" Visibility="Visible" Icon="favicon.ico" MouseDoubleClick="OnDoubleClick"/>
+        <TabControl>
+            <TabItem Header="Main">
+                <Grid Background="#FFE5E5E5">
+                    <Label Content="程序启动成功" Margin="0,183,0,0" VerticalAlignment="Top"/>
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="数据显示">
+                <Grid Background="#FFE5E5E5">
+                    <Button Content="刷新" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Button_Click" Height="29" Width="90"/>
+                    <Label x:Name="CPUTemperature" Content="" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="CPULoad" Content="" HorizontalAlignment="Left" Margin="10,40,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="GPUTemperature" Content="" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="GPULoad" Content="" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="GPUMemoryUsed" Content="" HorizontalAlignment="Left" Margin="10,130,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="RAMUsed" Content="" HorizontalAlignment="Left" Margin="10,160,0,0" VerticalAlignment="Top"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
