@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:HardwareMonitor625"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Closing="Window_Closing" Closed="Window_Closed">
+        Title="MainWindow" Height="450" Width="800" Closing="Window_Closing" Closed="Window_Closed" Loaded="Window_Loaded">
     <Grid>
         <hc:NotifyIcon x:Name="notifyicon" Text="HardwareMonitor625" Token="HardwareMonitor625" IsBlink="false" Visibility="Visible" Icon="favicon.ico" MouseDoubleClick="OnDoubleClick"/>
         <TabControl>

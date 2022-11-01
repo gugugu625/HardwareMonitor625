@@ -63,8 +63,9 @@ namespace HardwareMonitor625
             timer.Start();
 
             DevicePort.Open();
-            //Thread.Sleep(100);
+            //Thread.Sleep(1000);
             //this.Hide();
+            //this.notifyicon.Visibility = Visibility.Visible;
             //DevicePort.WriteLine("TEST");
         }
         public HardwareDataStorage GetData(Computer myComputer, UpdateVisitor updateVisitor)
@@ -193,6 +194,11 @@ namespace HardwareMonitor625
         private void Window_Closed(object sender, EventArgs e)
         {
             
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }
