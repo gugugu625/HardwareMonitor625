@@ -181,7 +181,7 @@ namespace HardwareMonitor625
             GPUTemperature.Content = "GPU温度" + storage.GPUTemperature;
             GPUMemoryUsed.Content = "GPU内存占用" + storage.GPUMemoryUsed;
             RAMUsed.Content = "内存占用" + storage.RAMUsed;*/
-            DevicePort.WriteLine(JsonConvert.SerializeObject(storage));
+            DevicePort.WriteLine("<<"+Convert.ToBase64String(Encoding.GetEncoding("UTF-8").GetBytes(JsonConvert.SerializeObject(storage)))+">>");
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
