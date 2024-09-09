@@ -159,13 +159,10 @@ namespace HardwareMonitor625
         /// <returns></returns>
         private string GetAppPathFromQuick(string shortcutPath)
         {
-            //快捷方式文件的路径 = @"d:\Test.lnk";
             if (System.IO.File.Exists(shortcutPath))
             {
                 WshShell shell = new WshShell();
                 IWshShortcut shortct = (IWshShortcut)shell.CreateShortcut(shortcutPath);
-                //快捷方式文件指向的路径.Text = 当前快捷方式文件IWshShortcut类.TargetPath;
-                //快捷方式文件指向的目标目录.Text = 当前快捷方式文件IWshShortcut类.WorkingDirectory;
                 return shortct.TargetPath;
             }
             else
