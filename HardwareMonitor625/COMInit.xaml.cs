@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace HardwareMonitor625
 {
@@ -23,6 +25,8 @@ namespace HardwareMonitor625
     public partial class COMInit : Window
     {
         SerialPort DevicePort;
+        string logPath = "./com_logs.txt";
+        string saveFile = "./SerialPort.ini";
         public COMInit()
         {
             InitializeComponent();
@@ -30,14 +34,15 @@ namespace HardwareMonitor625
             Thread childThread = new Thread(childref);
             childThread.Start();
         }
-        private void ScanSerialPort()
+        private bool CheckPort(string vPortName)
         {
-            int ScanCount = 0;
-            foreach (string vPortName in SerialPort.GetPortNames())
+            bool res = false;
+            DevicePort = new SerialPort(vPortName, 115200, Parity.None, 8, StopBits.One);
+            using (StreamWriter logger = new StreamWriter(logPath, true))
             {
-                DevicePort = new SerialPort(vPortName, 115200, Parity.None, 8, StopBits.One);
                 try
                 {
+
                     DevicePort.Open();
                     DevicePort.WriteLine("GetDeviceName");
                     DateTime start = DateTime.Now;
@@ -47,6 +52,7 @@ namespace HardwareMonitor625
                         if (pass.TotalMilliseconds >= 100)
                         {
                             Console.WriteLine("TIMEOUT");
+                            logger.WriteLine(vPortName + ":" + "TIMEOUT");
                             break;
                         }
                         Thread.Sleep(1);
@@ -54,28 +60,77 @@ namespace HardwareMonitor625
                     Thread.Sleep(50);
                     byte[] recData = new byte[DevicePort.BytesToRead];
                     DevicePort.Read(recData, 0, recData.Length);
-                    
-                    if (System.Text.Encoding.UTF8.GetString(recData).Trim()== "HardwareMonitor")
+
+                    if (System.Text.Encoding.UTF8.GetString(recData).Trim() == "HardwareMonitor")
                     {
-                        ScanCount++;
+                        
                         Console.WriteLine(vPortName);
-                        File.WriteAllText(@"./SerialPort.ini", vPortName);
+                        logger.WriteLine(vPortName + ":" + "Find port");
+                        res = true;
                     }
+                    else
+                    {
+                        logger.WriteLine(vPortName + ":" + "wrong response. res:" + Encoding.UTF8.GetString(recData).Trim());
+                    }
+
 
                     //timer.Start();
                     DevicePort.Close();
+                    return res;
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    return false;
+                }
             }
+        }
+        private void ScanSerialPort()
+        {
+            using (StreamWriter logger = new StreamWriter(logPath, false))
+            {
+                logger.WriteLine("Start check");
+            }
+            if (File.Exists(saveFile))
+            {
+                if (!IsFileEmpty(saveFile))
+                {
+                    string port = File.ReadAllText(saveFile);
+                    if (CheckPort(port))
+                    {
+                        return;
+                    };
+                }
+            }
+            using (StreamWriter logger = new StreamWriter(logPath, false)) {
+            
+            int ScanCount = 0;
+            foreach (string vPortName in SerialPort.GetPortNames())
+            {
+                if (CheckPort(vPortName))
+                {
+                    File.WriteAllText(saveFile, vPortName);
+                    ScanCount++;
+                };
+
+            }
+            logger.WriteLine("success port:"+ScanCount.ToString());
             if (ScanCount == 0)
             {
                 MessageBox.Show("无法检测到设备");
                 Environment.Exit(0);
             }
+                
+            }
             this.Dispatcher.Invoke(new Action(() =>
             {
                 this.DialogResult = true;
             }));
+        }
+        private bool IsFileEmpty(string filePath)
+        {
+            FileInfo fileInfo = new FileInfo(filePath);
+            return fileInfo.Length == 0;
         }
     }
 }

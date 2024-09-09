@@ -83,6 +83,10 @@ namespace HardwareMonitor625
 
             HardwareDataStorage data = new HardwareDataStorage();
             data.CPUTemperature = GetRegistry("Value.TCPU");
+            if(data.CPUTemperature == 0)
+            {
+                data.CPUTemperature = GetRegistry("Value.TCPUPKG");
+            }
             data.CPULoad = GetRegistry("Value.SCPUUTI");
             data.GPUTemperature = GetRegistry("Value.TGPU1");
             data.GPULoad = GetRegistry("Value.SGPU1UTI");
