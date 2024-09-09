@@ -47,6 +47,7 @@ namespace HardwareMonitor625
                 DevicePort = new SerialPort(line.ToString().Trim(), 115200, Parity.None, 8, StopBits.One);
             }
 
+            //GetData();
             timer = new System.Timers.Timer(1000);
             timer.AutoReset = true;
             timer.Enabled = true;
@@ -64,8 +65,14 @@ namespace HardwareMonitor625
         {
             RegistryKey key = Registry.CurrentUser;
             RegistryKey software = key.OpenSubKey(@"Software\FinalWire\AIDA64\SensorValues", false);
+            if (software.GetValue(name) == null)
+            {
+                return 0;
+            }
             string value = software.GetValue(name).ToString();
-            if(value == "")
+            key.Close();
+            software.Close();
+            if (value == "")
             {
                 return 0;
             }
@@ -76,10 +83,17 @@ namespace HardwareMonitor625
 
             HardwareDataStorage data = new HardwareDataStorage();
             data.CPUTemperature = GetRegistry("Value.TCPU");
+            if(data.CPUTemperature == 0)
+            {
+                data.CPUTemperature = GetRegistry("Value.TCPUPKG");
+            }
             data.CPULoad = GetRegistry("Value.SCPUUTI");
             data.GPUTemperature = GetRegistry("Value.TGPU1");
             data.GPULoad = GetRegistry("Value.SGPU1UTI");
-            data.GPUMemoryUsed = GetRegistry("Value.SVMEMUSAGE");
+            
+            float UsedGPUM = GetRegistry("Value.SUSEDVMEM");
+            float FreeGPUM = GetRegistry("Value.SFREEVMEM");
+            data.GPUMemoryUsed = (float)Math.Round((double)UsedGPUM/(UsedGPUM+FreeGPUM)*100,1);
             data.RAMUsed = GetRegistry("Value.SMEMUTI");
             return data;
         }
@@ -108,6 +122,7 @@ namespace HardwareMonitor625
         private void SendData(object sender, System.Timers.ElapsedEventArgs e)
         {
             HardwareDataStorage storage = GetData();
+
             /*if (!Dispatcher.CheckAccess())
             {
                 Dispatcher.Invoke(() => SendData(sender,e));
@@ -119,7 +134,9 @@ namespace HardwareMonitor625
             GPUTemperature.Content = "GPU温度" + storage.GPUTemperature;
             GPUMemoryUsed.Content = "GPU内存占用" + storage.GPUMemoryUsed;
             RAMUsed.Content = "内存占用" + storage.RAMUsed;*/
-            DevicePort.WriteLine("<<"+Convert.ToBase64String(Encoding.GetEncoding("UTF-8").GetBytes(JsonConvert.SerializeObject(storage)))+">>");
+            Console.WriteLine(JsonConvert.SerializeObject(storage));
+            //DevicePort.WriteLine("<<"+Convert.ToBase64String(Encoding.GetEncoding("UTF-8").GetBytes(JsonConvert.SerializeObject(storage)))+">>");
+            DevicePort.WriteLine(JsonConvert.SerializeObject(storage));
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
